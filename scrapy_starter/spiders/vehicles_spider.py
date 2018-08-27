@@ -9,16 +9,14 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 
-class VehiclesSpider(CrawlSpider):
+class VehiclesSpider(scrapy.Spider):
     name = 'vehicles_spider'
     allowed_domains = ['https://www.sunarp.gob.pe/']
     start_urls = [
         'https://www.sunarp.gob.pe/seccion/servicios/detalles/0/c3.html'
         ]
 
-
     def __init__(self):
-
         rutaFX = os.environ['FIREFOX_HOME']
         print(rutaFX + r'\firefox.exe')
         # Ubicacion del firefox.exe
@@ -35,13 +33,17 @@ class VehiclesSpider(CrawlSpider):
         self.driver = webdriver.Firefox(firefox_options=options,
                                         firefox_profile=profile,
                                         firefox_binary=binary,
-                                        executable_path='../geckodriver.exe')
+                                        executable_path='geckodriver.exe')
 
-    def parse_item(self, response):
+    def parse(self, response):
         self.driver.get(response.url)
         next = self.driver.find_element_by_xpath("//a")
         try:
-            next.click()
+            page = next.click()
+
+            with ("test.html", 'wb') as f:
+                f.write(page)
+
         except:
             print("closing driver")
             self.driver.close()
